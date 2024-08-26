@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Real-Time Monitoring</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script>
+        function fetchData() {
+            fetch('/get_data')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('parameters').innerText = JSON.stringify(data, null, 2);
+                });
+        }
+
+        function updateParameters() {
+            const newData = {
+                'casting_temperature': parseFloat(document.getElementById('casting_temperature').value),
+                'cooling_temp': parseFloat(document.getElementById('cooling_temp').value),
+                'casting_speed': parseFloat(document.getElementById('casting_speed').value),
+                'entry_temp': parseFloat(document.getElementById('entry_temp').value),
+                'emulsion_temp': parseFloat(document.getElementById('emulsion_temp').value),
+                'emulsion_pressure': parseFloat(document.getElementById('emulsion_pressure').value),
+                'emulsion_concentration': parseFloat(document.getElementById('emulsion_concentration').value),
+                'quench_pressure': parseFloat(document.getElementById('quench_pressure').value)
+            };
+
+            fetch('/set_data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newData)
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      fetchData();
+                  }
+              });
+        }
+
+        setInterval(fetchData, 1000);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Real-Time Monitoring</h1>
+        <div>
+            <pre id="parameters"></pre>
+        </div>
+        <div>
+            <h3>Update Parameters</h3>
+            <label>Casting Temperature: <input type="number" id="casting_temperature"></label>
+            <label>Cooling Temp: <input type="number" id="cooling_temp"></label>
+            <label>Casting Speed: <input type="number" id="casting_speed"></label>
+            <label>Entry Temp: <input type="number" id="entry_temp"></label>
+            <label>Emulsion Temp: <input type="number" id="emulsion_temp"></label>
+            <label>Emulsion Pressure: <input type="number" id="emulsion_pressure"></label>
+            <label>Emulsion Concentration: <input type="number" id="emulsion_concentration"></label>
+            <label>Quench Pressure: <input type="number" id="quench_pressure"></label>
+            <button onclick="updateParameters()">Update</button>
+        </div>
+    </div>
+</body>
+</html>
